@@ -17,9 +17,9 @@ io.on("connection", (socket: Socket) => {
         console.log("Client disconnected", socket.id);
     });
 
-    socket.on("sendMessage", (message) => {
-        io.emit("receiveMessage", message);
-    });
+    // socket.on("sendMessage", (message) => {
+    //     io.emit("receiveMessage", message);
+    // });
 
     socket.on("sendMessage", async (data) => {
         const { senderId, receiverId, message } = data;
