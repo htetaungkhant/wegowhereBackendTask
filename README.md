@@ -28,9 +28,9 @@ So, the key requirements include:
 That's all. Then you can access the prject at [http://localhost:85](http://localhost:85). 
 
 ## Configuration
-For `MESSAGE_BROKER_URL` environment variable, please create or login account at [CloudAMQP](https://www.cloudamqp.com/). Then you can get the `URL` at the **AMQP details** section of the console.
+For `MESSAGE_BROKER_URL` environment variable, please create or login account at [CloudAMQP](https://www.cloudamqp.com/). Then you can get the `URL` at the ***AMQP details*** section of the console after you have logged in.
 
-For `SENDINBLUE_APIKEY`, `SMTP_USER` and `SMTP_PASS` environment variables, please create or login account at [brevo]().
+For `SENDINBLUE_APIKEY`, `SMTP_USER` and `SMTP_PASS` environment variables, please create or login account at [brevo](https://www.brevo.com/). And then you can those data the ***SMTP & API*** section of the setting after you have logged in.
 
 ## Testing and debugging
 Please use postman to test API services.
