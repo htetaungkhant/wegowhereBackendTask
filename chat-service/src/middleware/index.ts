@@ -1,10 +1,11 @@
 import { Request, Response, NextFunction, ErrorRequestHandler } from "express";
 import jwt from "jsonwebtoken";
 import { ApiError } from "../utils";
-import config from "../config";
+import config from "../config/config";
 
 interface TokenPayload {
     id: string;
+    name: string;
     email: string;
     iat: number;
     exp: number;
@@ -44,7 +45,7 @@ const authMiddleware = async (
             email: decoded.email,
             createdAt: new Date(decoded.iat * 1000),
             updatedAt: new Date(decoded.exp * 1000),
-            name: "",
+            name: decoded.name,
             password: "",
         };
         return next();

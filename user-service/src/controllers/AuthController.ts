@@ -2,8 +2,8 @@ import express, { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { User } from "../database";
 import { ApiError, encryptPassword, isPasswordMatch } from "../utils";
-import config from "../config";
-import { IUser } from "../database/models/User";
+import config from "../config/config";
+import { IUser } from "../database";
 
 const jwtSecret = config.JWT_SECRET as string;
 const COOKIE_EXPIRATION_DAYS = 90; // cookie expiration in days
@@ -50,8 +50,8 @@ const register = async (req: Request, res: Response) => {
 };
 
 const createSendToken = async (user: IUser, res: Response) => {
-    const { email, id } = user;
-    const token = jwt.sign({ email, id }, jwtSecret, {
+    const { name, email, id } = user;
+    const token = jwt.sign({ name, email, id }, jwtSecret, {
         expiresIn: "1d",
     });
     if (config.env === "production") cookieOptions.secure = true;

@@ -1,58 +1,63 @@
-import amqp from "amqplib";
-import config from "../config";
+import amqp, { Channel } from "amqplib";
+import config from "../config/config";
 import { FCMService } from "./FCMService";
 import { EmailService } from "./EmailService";
+import { UserStatusStore } from "../utils";
 
-interface NotificationPayload {
-    type: string;
-    userId: string;
-    userEmail: string;
-    userToken: string;
-    message: string;
-}
-
-export class RabbitMQService {
+class RabbitMQService {
+    private channel!: Channel;
     private fcmService = new FCMService();
     private emailService = new EmailService();
-    async connect() {
+    private userStatusStore = new UserStatusStore();
+
+    constructor() {
+        this.init();
+    }
+
+    async init() {
         const connection = await amqp.connect(config.msgBrokerURL!);
-        const channel = await connection.createChannel();
-        await channel.assertQueue("notifications");
+        this.channel = await connection.createChannel();
+        await this.consumeNotification();
+    }
 
-        channel.consume("notifications", async (message) => {
-            if (message !== null) {
-                const payload: NotificationPayload = JSON.parse(
-                    message.content.toString()
-                );
+    async consumeNotification() {
+        await this.channel.assertQueue(config.queue.notifications);
+        this.channel.consume(config.queue.notifications, async (msg) => {
+            if (msg) {
+                const {
+                    type,
+                    userId,
+                    message,
+                    userEmail,
+                    userToken,
+                    fromName,
+                } = JSON.parse(msg.content.toString());
 
-                if (payload.type === "MESSAGE_RECEIVED") {
-                    const isUserOnline = await this.checkUserOnlineStatus(
-                        payload.userId
-                    );
+                if (type === "MESSAGE_RECEIVED") {
+                    // Check if the user is online
+                    const isUserOnline =
+                        this.userStatusStore.isUserOnline(userId);
 
-                    if (isUserOnline) {
+                    if (isUserOnline && userToken) {
+                        // User is online, send a push notification
                         await this.fcmService.sendPushNotification(
-                            payload.userToken,
-                            payload.message
+                            userToken,
+                            message
                         );
-                    } else {
+                    } else if (userEmail) {
+                        // User is offline, send an email
                         await this.emailService.sendEmail(
-                            payload.userEmail,
-                            "New Message",
-                            payload.message
+                            userEmail,
+                            `New Message from ${fromName}`,
+                            message
                         );
                     }
                 }
 
-                channel.ack(message); // Acknowledge the message after processing
+                this.channel.ack(msg); // Acknowledge the message after processing
             }
         });
     }
-
-    private async checkUserOnlineStatus(userId: string): Promise<boolean> {
-        // Logic to check if the user is currently online
-        // This could involve querying a database or another service
-        // For simplicity, let's assume a function that returns a boolean
-        return true; // Placeholder
-    }
 }
+
+export const rabbitMQService = new RabbitMQService();

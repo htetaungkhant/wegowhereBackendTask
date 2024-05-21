@@ -2,10 +2,12 @@
     "name": "user-service",
     "version": "1.0.0",
     "description": "User Service - Chat Server",
-    "main": "src/index.ts",
+    "main": "src/server.ts",
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1",
-        "dev": "nodemon src/index.ts"
+        "dev": "NODE_ENV=development nodemon src/server.ts",
+        "build": "rm -rf build/ && tsc -p .",
+        "start": "NODE_ENV=production nodemon build/server.js",
+        "test": "echo \"Error: no test specified\" && exit 1"
     },
     "repository": {
         "type": "git",
@@ -27,6 +29,7 @@
     "dependencies": {
         "@types/express": "^4.17.21",
         "@types/validator": "^13.11.8",
+        "amqplib": "^0.10.3",
         "bcryptjs": "^2.4.3",
         "dotenv": "^16.3.1",
         "express": "^4.18.2",
@@ -38,6 +41,7 @@
         "validator": "^13.11.0"
     },
     "devDependencies": {
+        "@types/amqplib": "^0.10.4",
         "@types/bcryptjs": "^2.4.6",
         "@types/jsonwebtoken": "^9.0.5"
     }

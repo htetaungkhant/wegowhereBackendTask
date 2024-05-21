@@ -1,20 +1,22 @@
 import { Request, Response } from "express";
 import { AuthRequest } from "../middleware";
 import { Message } from "../database";
-import { ApiError } from "../utils";
+import { ApiError, handleMessageReceived } from "../utils";
 
 const send = async (req: AuthRequest, res: Response) => {
     try {
         const { receiverId, message } = req.body;
-        const senderId = req.user._id;
+        const { _id, email, name } = req.user;
 
-        validateReceiver(senderId, receiverId);
+        validateReceiver(_id, receiverId);
 
         const newMessage = await Message.create({
-            senderId,
+            senderId: _id,
             receiverId,
             message,
         });
+
+        await handleMessageReceived(name, email, receiverId, message);
 
         return res.json({
             status: 200,
@@ -34,7 +36,7 @@ const validateReceiver = (senderId: string, receiverId: string) => {
         throw new ApiError(404, "Receiver ID is required.");
     }
 
-    if (senderId === receiverId) {
+    if (senderId == receiverId) {
         throw new ApiError(400, "Sender and receiver cannot be the same.");
     }
 };
