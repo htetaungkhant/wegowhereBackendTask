@@ -42,6 +42,17 @@ services:
     environment:
       - NODE_ENV=production
 
+  payment:
+    build:
+      context: ./payment-service
+      dockerfile: Dockerfile
+    ports:
+      - "8084:8084"
+    depends_on:
+      - "mongodb"
+    environment:
+      - NODE_ENV=production
+
   nginx:
     build:
       context: ./nginx
