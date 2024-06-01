@@ -24,7 +24,7 @@ export interface AuthRequest extends Request {
     user: IUser;
 }
 
-const jwtSecret = config.JWT_SECRET as string;
+const jwtAccessTokenSecret = config.JWT_ACCESSTOKEN_SECRET as string;
 
 export const authMiddleware = async (
     req: AuthRequest,
@@ -38,7 +38,7 @@ export const authMiddleware = async (
 
     const [, token] = authHeader.split(" ");
     try {
-        const decoded = jwt.verify(token, jwtSecret) as TokenPayload;
+        const decoded = jwt.verify(token, jwtAccessTokenSecret) as TokenPayload;
 
         req.user = {
             _id: decoded.id,
@@ -50,7 +50,6 @@ export const authMiddleware = async (
         };
         return next();
     } catch (error) {
-        console.error(error);
         return next(new ApiError(401, "Invalid token"));
     }
 };
